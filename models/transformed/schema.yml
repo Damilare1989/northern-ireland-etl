@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: public
+    schema: public
+    tables:
+      - name: new_dwelling_completions
+      - name: police_recorded_crime
