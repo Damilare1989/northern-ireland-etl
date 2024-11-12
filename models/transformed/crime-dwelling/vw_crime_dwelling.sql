@@ -75,7 +75,7 @@ group_codes AS (
         SELECT DISTINCT lgd_group 
         FROM aggregated_dwelling
         ORDER BY lgd_group
-    ) t
+    ) 
 ),
 
 -- Step 6: Merge aggregated dwelling and crime data based on lgd_group, year, and quarter
