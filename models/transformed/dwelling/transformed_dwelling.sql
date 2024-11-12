@@ -22,7 +22,7 @@ filtered_data AS (
   WHERE rn < total_rows
 ),
 
--- Define quarters using simplified Jinja templating
+-- Defining quarters using simplified Jinja templating
 quarters AS (
   {%- set quarters = [] %}
   {%- for year in range(2005, 2016) %}

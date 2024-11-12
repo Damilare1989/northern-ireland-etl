@@ -1,19 +1,18 @@
 WITH cleaned_data AS (
-    -- Remove leading/trailing whitespaces and filter out unwanted rows
+    -- Removing leading/trailing whitespaces and filter out unwanted rows
     SELECT 
         TRIM(policing_district) as policing_district,
         crime_type,
         calendar_year,
         month,
-        -- Convert count to numeric, replacing invalid values with NULL
-        TRY_CAST(count AS INTEGER) as count
+        CAST(count AS FLOAT) as count 
     FROM {{ source('public', 'police_recorded_crime') }}
     WHERE crime_type != 'Total police recorded crime'
-    AND policing_district != 'Northern Ireland'
+    AND TRIM(policing_district) != 'Northern Ireland'
 ),
 
 quarter_mapping AS (
-    -- Add quarter mapping
+    -- Adding quarter mapping
     SELECT 
         *,
         CASE 
@@ -23,8 +22,8 @@ quarter_mapping AS (
             WHEN month IN ('Oct', 'Nov', 'Dec') THEN 4
         END as quarter
     FROM cleaned_data
-    WHERE (calendar_year BETWEEN 2005 AND 2014)
-    OR (calendar_year = 2015 AND month IN ('Jan', 'Feb', 'Mar'))
+    WHERE (calendar_year >= 2005 AND calendar_year <= 2014)
+    OR (calendar_year = 2015 AND TRIM(month) IN ('Jan', 'Feb', 'Mar'))
 )
 
 -- Final aggregation
@@ -33,8 +32,9 @@ SELECT
     quarter,
     policing_district,
     crime_type,
-    ROUND(SUM(count))::INTEGER as count
+    ROUND(SUM(COALESCE(count, 0)))::INTEGER as count
 FROM quarter_mapping
+WHERE quarter IS NOT NULL
 GROUP BY 
     calendar_year,
     quarter,
