@@ -1,18 +1,16 @@
 {{ config(
     materialized = 'view'
 ) }}
-
 -- Step 1: Aggregate crime data by policing district, year, and quarter
 WITH aggregated_crime AS (
     SELECT
         policing_district,
-        calendar_year,
-        quarter,
+        CAST(calendar_year AS INTEGER) as calendar_year,
+        CAST(quarter AS INTEGER) as quarter,
         SUM(count) as count
     FROM {{ ref('transformed_crime') }}
     GROUP BY 1, 2, 3
 ),
-
 -- Step 2: Filter the crime data for desired policing districts
 filtered_crime AS (
     SELECT *
@@ -28,7 +26,6 @@ filtered_crime AS (
         'Fermanagh & Omagh'
     )
 ),
-
 -- Step 3: Map lgds to grouping in dwelling data
 dwelling_with_groups AS (
     SELECT 
@@ -53,19 +50,17 @@ dwelling_with_groups AS (
         END as lgd_group
     FROM {{ ref('transformed_dwelling')}} d
 ),
-
 -- Step 4: Aggregate dwelling data by lgd_group, year, and quarter
 aggregated_dwelling AS (
     SELECT
         lgd_group,
-        year,
-        quarter,
+        CAST(year AS INTEGER) as year,
+        CAST(quarter AS INTEGER) as quarter,
         SUM(new_dwelling_total) as new_dwelling_total
     FROM dwelling_with_groups
     WHERE lgd_group IS NOT NULL
     GROUP BY 1, 2, 3
 ),
-
 -- Step 5: Generate unique lgd_group_code for each lgd_group
 group_codes AS (
     SELECT
@@ -77,13 +72,12 @@ group_codes AS (
         ORDER BY lgd_group
     ) 
 ),
-
 -- Step 6: Merge aggregated dwelling and crime data based on lgd_group, year, and quarter
 final_result AS (
     SELECT
         c.policing_district,
-        d.year,
-        d.quarter,
+        CAST(d.year AS INTEGER) as year,
+        CAST(d.quarter AS INTEGER) as quarter,
         d.new_dwelling_total,
         c.count as crime_total
     FROM aggregated_dwelling d
@@ -93,7 +87,6 @@ final_result AS (
         d.year = c.calendar_year AND
         d.quarter = c.quarter
 )
-
 -- Step 7: Select and order final result columns 
 SELECT
     policing_district,
