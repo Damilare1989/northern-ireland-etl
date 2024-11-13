@@ -1,4 +1,4 @@
-# 🏢 Crime and Dwelling Data Transformation Project
+# 🏢 Crime and Housing Data Transformation Project
 
 ## 📋 Overview
 This dbt project transforms and combines police recorded crime data with new dwelling completions data across Northern Ireland districts. The project aggregates data by policing district, year, and quarter to enable analysis of potential correlations between crime rates and new housing developments.
